@@ -1,0 +1,6 @@
+.mode column
+.header on
+.separator ' '
+.width 10 20 20 10 13 24
+SELECT * FROM STU;
+.exit

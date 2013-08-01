@@ -10,4 +10,5 @@ this app do below operation for CEA:
         "4) List SignIn Student"
         
 this app use SQlite DB for saving Data,
+this app use SHELLScript for app itSelf
 

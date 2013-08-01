@@ -10,8 +10,8 @@
 #===============================================================================
 
 SQLITEPATH='/usr/bin/sqlite'
-DATABASENAME='ceaSTU.db'
-CREATESQL='CREATE TABLE STU(ID INTEGER PRIMARY KEY,NAME VARCHAR(30),FAMILY VARCHAR(40),FIELD VARCHAR(50),PHONE INT,MAIL VARCHAR(70));'
+DATABASENAME='ceaSTU2.db'
+CREATESQL='CREATE TABLE STU(ID INTEGER PRIMARY KEY,NAME VARCHAR(30),FAMILY VARCHAR(40),FIELD VARCHAR(50),PHONE INT,MAIL VARCHAR(70),SEX VARCHAR(1),DEL INTEGER);'
 SQLITEPATH='/usr/bin/sqlite'
 _check=1
 
@@ -41,24 +41,18 @@ insert ()
 	condition=true
 	while [  $condition=="true" ]
 	do	
-		if [ $FIRST -ne 0 ]
+		if [ ! $FIRST -eq 0 ]
 		then
-			read -p "Do You Want To Cancel Adding Person (y/n)" ans
-			if [ $ans=="y" -o $ans=="yes" ]
+			read -p "Do You Want to Add Another Person ? (y/n)" ans
+			if [ $ans=="y" ]
 			then
-				echo "OP Canceled"
-				seep 1
-				clear
-				condition=false
-				return
-			#elseif [ $ans=="n" -o $ans=="no" ]
+				FIRST=0
 			else
-				echo"hi baby"
-				sleep 5
-				insert
+				condition=false
+				clear
+				break
 			fi
 		fi
-		
 		_check=0
 		read -p "Enter STU ID : " ID
 		read -p "Enter STU Name : " NAME
@@ -66,16 +60,16 @@ insert ()
 		read -p "Enter STU Field : " FIELD
 		read -p "Enter STU Phone : " PHONE
 		read -p "Enter STU e-Mail : " EMAIL
+		read -p "Enter SEX : " SEX
 		FIRST=1
-		check 1 $ID $NAME $FAMILY $PHONE $EMAIL	
+		check 1 $ID $NAME $FAMILY $PHONE $EMAIL	$SEX
 		if [ $_check -eq 0 ]
 		then
-			echo "INSERT INTO STU VALUES('$ID','$NAME','$FAMILY','$FIELD','$PHONE','$EMAIL');"|sqlite $DATABASENAME
+			echo "INSERT INTO STU VALUES('$ID','$NAME','$FAMILY','$FIELD','$PHONE','$EMAIL','$SEX','0');"|sqlite $DATABASENAME
 			if [ $? -eq 0 ]
 			then
 				echo "Insert COmplete"				
-				sleep 1			
-				clear
+				sleep 1							
 			fi
 		fi
 	done
@@ -93,13 +87,9 @@ check ()
 	# 1st Arguman is define which FUNC call it
 	if [ $1 -eq 1 ]
 	then
-		#echo $str|sed 's/[^0-9]//g'	
 		ALNUMLENGHT=${#2}
-		#echo "ALL Lenght is : $ALNUMLENGHT"
                 DIGIT=`echo $2|sed 's/[^0-9]//g'`
-		#echo "Digit is : $DIGIT"
                 DIGITLENGHT=${#DIGIT}
-		#echo "Digit # : $DIGITLENGHT"
                 if [  $ALNUMLENGHT -ne 8  -o  $ALNUMLENGHT -ne $DIGITLENGHT ] 
                 then
                         echo "STU ID is Not Correct Style( 8digit,Without Alphabet)"
@@ -122,6 +112,11 @@ check ()
 		then
 			_check=3
 			echo "Empty Family"
+		fi
+		if [ ! $7=="f" -o !$7=="m" ]
+		then
+			_check=4
+			echo "Unkown SEX"
 		fi
 <<comm
 		PHONECODE=${5:0:3}
@@ -151,7 +146,7 @@ showlist ()
 	echo "STUDENT Database Content"
 	echo "------------------------"
 	cat sqlite.cnf|sqlite $DATABASENAME|more
-	echo -e "-----------------------------------------------------------\n"
+	echo -e "-----------------------------------------------------------------------------------------------------------\n"
 	
 }	# ----------  end of function showlist  ----------
 show ()

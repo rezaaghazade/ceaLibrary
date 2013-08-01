@@ -1,6 +1,6 @@
 .mode column
 .header on
 .separator ' '
-.width 10 20 20 10 13 24
-SELECT * FROM STU;
+.width 10 20 20 10 13 24 3 3
+SELECT ID,NAME,FAMILY,FIELD,PHONE,MAIL,SEX FROM STU;
 .exit

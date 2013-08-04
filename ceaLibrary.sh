@@ -13,9 +13,10 @@ SQLITEPATH='/usr/bin/sqlite'
 DATABASENAME='ceaSTU2.db'
 CREATESQL='CREATE TABLE STU(ID INTEGER PRIMARY KEY,NAME VARCHAR(30),FAMILY VARCHAR(40),FIELD VARCHAR(50),PHONE INT,MAIL VARCHAR(70),SEX VARCHAR(1),DEL INTEGER);'
 SQLITEPATH='/usr/bin/sqlite'
+STUDENTRECORD=""
 _check=1
 
-trap '' SIGINT
+#trap '' SIGINT    # trap ^C Signal
 clear
 if [ ! -e $SQLITEPATH ]
 then
@@ -38,21 +39,10 @@ insert ()
 {
 	insertFrameShow
 	FIRST=0
-	condition=true
-	while [  $condition=="true" ]
+	CONDITION=true
+	ANS=""
+	while [  $CONDITION=="true" ]
 	do	
-		if [ ! $FIRST -eq 0 ]
-		then
-			read -p "Do You Want to Add Another Person ? (y/n)" ans
-			if [ $ans=="y" ]
-			then
-				FIRST=0
-			else
-				condition=false
-				clear
-				break
-			fi
-		fi
 		_check=0
 		read -p "Enter STU ID : " ID
 		read -p "Enter STU Name : " NAME
@@ -72,6 +62,22 @@ insert ()
 				sleep 1							
 			fi
 		fi
+<<comment
+		if [ ! $FIRST -eq 0 ]
+                then
+                        read -p "Do You Want to Add Another Person ? (y/n)" ans
+			echo $ans
+                        if [ $ans=="y" ]
+                        then
+	                           echo "in if"     
+                        elif [ $ans=="n" ]
+			then
+				echo "in else"
+                                CONDITION="false"
+                                clear                               
+                        fi
+                fi
+comment
 	done
 	
 	
@@ -149,6 +155,33 @@ showlist ()
 	echo -e "-----------------------------------------------------------------------------------------------------------\n"
 	
 }	# ----------  end of function showlist  ----------
+
+searchStudent ()
+{
+	STUID=$1
+	STUDENTRECORD=`echo "SELECT * FROM STU WHERE ID=$STUID;"|sqlite $DATABASENAME`
+	
+}	# ----------  end of function searchStudent  ----------
+modifyStudent ()
+{
+	clear
+	echo "Modify SignIn Student "
+	echo "-----------------------------------------------------------------"
+	read -p "Enter STU Number : " STUID
+	searchStudent $STUID
+	if [ -n STUDENTRECORD ]
+	then
+		echo "Student Found"
+		echo "----------------------------------------------------------------"
+		echo "SELECT ID,NAME,FAMILY,FIELD,PHONE,MAIL,SEX FROM STU WHERE ID=$STUID;">>sqlite2.cnf
+		echo ".exit">>sqlite2.cnf
+		cat sqlite2.cnf|sqlite $DATABASENAME
+		echo ""
+	else
+		echo 	"Student Not Found"
+	fi
+	
+}	# ----------  end of function modifyStudent  ----------
 show ()
 {
 	echo "Computer Engeenring Assosiation Student List : "
@@ -172,6 +205,7 @@ do
 			show
 		;;
 		'Modify Student')
+			modifyStudent
 			show
 		;;
 		'List SignIn Student')
